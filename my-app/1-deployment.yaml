@@ -1,16 +1,26 @@
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: my-app
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  name: nginx
+  namespace: foo
+  labels:
+    app: nginx
 spec:
-  project: default
-  source:
-    repoURL: https://github.com/davidfrazao/kube-argocd-158-github
-    targetRevision: HEAD
-    path: my-app
-  destination:
-    server: https://kubernetes.default.svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          imagePullPolicy: Always
+          image: dfrazao/nginx:v0.1.0
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: dockerconfigjson
